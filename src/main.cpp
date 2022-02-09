@@ -8,23 +8,39 @@
 
 #include <Arduino.h>
 #include <Servo.h>
+#include <"WIFIConnector_MKR1000.h">
+#include "MQTTConnector.h"
 
-int potpin = A1;
-int servoPin = 9;
 
-int angle = 0;
-int lire = 0;
-Servo moteur1;
-void setup()
-{
-    moteur1.attach(servoPin);
+Servo Moteur;  
+
+
+// Declaration des variables pour le servo moteur
+int Pause = 15; 		
+int ValeurAngle = 0;        
+int ValeurRotation = 0;        
+int DerniereValeurAngle = 0; 
+
+const int PIN_MOTEUR = 9; 
+const int PIN_CAPTEUR = A5;  		
+
+void setup() {
+	wifiConnect();                 
+	MQTTConnect();                 
+	Serial.begin(9600);
+	ServoMoteur.attach(PIN_MOTEUR);  
 }
-void loop()
-{
-    lire = analogRead(potpin);
-    angle = map(lire, 0, 1023, 0, 90);
-    moteur1.write(angle);
-    delay(15);
-    appendPayload(lire);
-    sendPayload();
+
+void loop() {
+	ValeurRotation = analogRead(PIN_CAPTEUR);
+	ValeurAngle = map(ValeurRotation, 0, 1023, 0, 90);
+	ServoMoteur.write(ValeurAngle);  
+	delay(Pause);
+	if (ValeurAngle != DerniereValeurAngle){
+		
+		appendPayload("ValeurAngle", ValeurAngle);
+		appendPayload("ValeurRotation", ValeurRotation);
+		sendPayload();
+		DerniereValeurAngle = ValeurAngle;
+	}
 }
