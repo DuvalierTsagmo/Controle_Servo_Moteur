@@ -25,4 +25,6 @@ void loop()
     angle = map(lire, 0, 1023, 0, 90);
     moteur1.write(angle);
     delay(15);
+    appendPayload("Temperature", angle); // Ajout de la donnée température au message MQTT
+    sendPayload();                       // Envoie du message via le protocole MQTT
 }
